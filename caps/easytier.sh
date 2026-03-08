@@ -50,7 +50,9 @@ if [[ "$DESIRED" == "capped" ]]; then
   cat >>"$tmp" <<'EOF'
 
 # --- managed by trafficcap ---
-relay_network_whitelist = []
+# NOTE: easytier v2.4.5 expects relay_network_whitelist to be a STRING.
+# Empty string means no networks are allowed to be relayed.
+relay_network_whitelist = ""
 relay_all_peer_rpc = true
 EOF
 fi
