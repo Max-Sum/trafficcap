@@ -44,21 +44,33 @@ tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
 
 # Remove existing keys (supports underscore and dash styles) and the trafficcap marker line.
-# We normalize CRLF (strip trailing \r) and then match the marker tokens with anchored regex.
-# This is strict about the text, but tolerant to extra whitespace (spaces/tabs).
+# Also prevents blank-line accumulation by trimming trailing blank lines on rewrite.
+#
+# - Normalize CRLF (strip trailing \r)
+# - Drop the managed marker + managed keys
+# - Keep interior blank lines, but drop trailing blank lines at EOF
 awk '
-  {
-    sub(/\r$/, "", $0)
-  }
+  { sub(/\r$/, "", $0) }
+
   /^[[:space:]]*(relay_network_whitelist|relay-network-whitelist)[[:space:]]*=/ {next}
   /^[[:space:]]*(relay_all_peer_rpc|relay-all-peer-rpc)[[:space:]]*=/ {next}
   /^[[:space:]]*#[[:space:]]*---[[:space:]]*managed by trafficcap[[:space:]]*---[[:space:]]*$/ {next}
-  {print}
+
+  /^[[:space:]]*$/ { blanks[++nb] = $0; next }
+  {
+    for (i = 1; i <= nb; i++) print blanks[i]
+    nb = 0
+    print
+  }
+  END { }
 ' "$CONFIG_FILE" > "$tmp"
 
 if [[ "$DESIRED" == "capped" ]]; then
+  # Ensure exactly one blank line before the managed block when the file has content
+  if [[ -s "$tmp" ]]; then
+    printf '\n' >>"$tmp"
+  fi
   cat >>"$tmp" <<'EOF'
-
 # --- managed by trafficcap ---
 relay_network_whitelist = ""
 relay_all_peer_rpc = true
