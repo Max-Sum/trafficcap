@@ -48,7 +48,8 @@ trap 'rm -f "$tmp"' EXIT
 awk '
   /^[[:space:]]*(relay_network_whitelist|relay-network-whitelist)[[:space:]]*=/ {next}
   /^[[:space:]]*(relay_all_peer_rpc|relay-all-peer-rpc)[[:space:]]*=/ {next}
-  /^[[:space:]]*#\s*---\s*managed by trafficcap\s*---\s*$/ {next}
+  # Drop any previous trafficcap marker comment (handles different dash counts / extra spaces)
+  /^[[:space:]]*#.*managed by trafficcap/ {next}
   {print}
 ' "$CONFIG_FILE" > "$tmp"
 
