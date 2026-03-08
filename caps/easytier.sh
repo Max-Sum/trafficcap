@@ -43,13 +43,15 @@ before="$(sha256sum "$CONFIG_FILE" | awk '{print $1}')"
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
 
-# Remove existing keys (supports underscore and dash styles) and any existing trafficcap marker
-# (we'll re-add the marker once when DESIRED=capped)
+# Remove existing keys (supports underscore and dash styles) and the exact trafficcap marker line.
+# No fuzzy matching: we normalize CRLF (strip trailing \r) and then match exact strings.
 awk '
+  {
+    sub(/\r$/, "", $0)
+  }
   /^[[:space:]]*(relay_network_whitelist|relay-network-whitelist)[[:space:]]*=/ {next}
   /^[[:space:]]*(relay_all_peer_rpc|relay-all-peer-rpc)[[:space:]]*=/ {next}
-  # Drop any previous trafficcap marker comment (handles different dash counts / extra spaces)
-  /^[[:space:]]*#.*managed by trafficcap/ {next}
+  /^[[:space:]]*# --- managed by trafficcap ---[[:space:]]*$/ {next}
   {print}
 ' "$CONFIG_FILE" > "$tmp"
 
