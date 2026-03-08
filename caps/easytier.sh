@@ -2,7 +2,7 @@
 # caps/easytier.sh
 # Idempotent EasyTier cap by editing /root/docker/easytier/config.toml in-place.
 #
-# capped:  relay_network_whitelist = []  + relay_all_peer_rpc = true
+# capped:  relay_network_whitelist = ""  + relay_all_peer_rpc = true
 # normal:  remove both keys (fall back to defaults)
 #
 # Restart policy:
@@ -43,19 +43,19 @@ before="$(sha256sum "$CONFIG_FILE" | awk '{print $1}')"
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
 
-# Remove existing keys (supports underscore and dash styles)
+# Remove existing keys (supports underscore and dash styles) and any old trafficcap marker comments
 awk '
   /^[[:space:]]*(relay_network_whitelist|relay-network-whitelist)[[:space:]]*=/ {next}
   /^[[:space:]]*(relay_all_peer_rpc|relay-all-peer-rpc)[[:space:]]*=/ {next}
+  /^[[:space:]]*#.*managed by trafficcap/ {next}
+  /^[[:space:]]*#\s*NOTE:\s*easytier/ {next}
+  /^[[:space:]]*#\s*Empty string means/ {next}
   {print}
 ' "$CONFIG_FILE" > "$tmp"
 
 if [[ "$DESIRED" == "capped" ]]; then
   cat >>"$tmp" <<'EOF'
 
-# --- managed by trafficcap ---
-# NOTE: easytier v2.4.5 expects relay_network_whitelist to be a STRING.
-# Empty string means no networks are allowed to be relayed.
 relay_network_whitelist = ""
 relay_all_peer_rpc = true
 EOF
