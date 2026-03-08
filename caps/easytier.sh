@@ -43,19 +43,19 @@ before="$(sha256sum "$CONFIG_FILE" | awk '{print $1}')"
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
 
-# Remove existing keys (supports underscore and dash styles) and any old trafficcap marker comments
+# Remove existing keys (supports underscore and dash styles) and any existing trafficcap marker
+# (we'll re-add the marker once when DESIRED=capped)
 awk '
   /^[[:space:]]*(relay_network_whitelist|relay-network-whitelist)[[:space:]]*=/ {next}
   /^[[:space:]]*(relay_all_peer_rpc|relay-all-peer-rpc)[[:space:]]*=/ {next}
-  /^[[:space:]]*#.*managed by trafficcap/ {next}
-  /^[[:space:]]*#\s*NOTE:\s*easytier/ {next}
-  /^[[:space:]]*#\s*Empty string means/ {next}
+  /^[[:space:]]*#\s*---\s*managed by trafficcap\s*---\s*$/ {next}
   {print}
 ' "$CONFIG_FILE" > "$tmp"
 
 if [[ "$DESIRED" == "capped" ]]; then
   cat >>"$tmp" <<'EOF'
 
+# --- managed by trafficcap ---
 relay_network_whitelist = ""
 relay_all_peer_rpc = true
 EOF
