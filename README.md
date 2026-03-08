@@ -17,11 +17,11 @@ Traffic cap automation for a VPS:
 
 ## Install (example)
 
-Clone into root home:
+Clone into `~/scripts`:
 
 ```bash
-mkdir -p /root/scripts
-cd /root/scripts
+mkdir -p ~/scripts
+cd ~/scripts
 git clone <YOUR_PRIVATE_REPO_URL> trafficcap
 cd trafficcap
 chmod +x apply.sh check.sh caps/*.sh
