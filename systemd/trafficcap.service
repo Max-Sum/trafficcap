@@ -1,0 +1,12 @@
+[Unit]
+Description=Traffic cap enforcement (vnstat -> caps)
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Install the repo under %h/scripts/trafficcap
+WorkingDirectory=%h/scripts/trafficcap
+ExecStart=%h/scripts/trafficcap/apply.sh
+TimeoutStartSec=300

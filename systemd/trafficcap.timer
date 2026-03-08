@@ -1,0 +1,12 @@
+[Unit]
+Description=Run trafficcap periodically
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+AccuracySec=30s
+Unit=trafficcap.service
+
+[Install]
+WantedBy=timers.target
