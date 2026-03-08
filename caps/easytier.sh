@@ -17,7 +17,11 @@ DESIRED="${1:-}"
 }
 
 EASY_DIR="/root/docker/easytier"
-COMPOSE_FILE="${EASY_DIR}/docker-compose.yml"
+# Compose filename: prefer .yaml, fall back to .yml for compatibility
+COMPOSE_FILE="${EASY_DIR}/docker-compose.yaml"
+if [[ ! -f "$COMPOSE_FILE" && -f "${EASY_DIR}/docker-compose.yml" ]]; then
+  COMPOSE_FILE="${EASY_DIR}/docker-compose.yml"
+fi
 SERVICE_NAME="easytier"   # change if your docker-compose service name differs
 CONFIG_FILE="${EASY_DIR}/config.toml"
 

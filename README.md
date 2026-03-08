@@ -40,4 +40,5 @@ systemctl enable --now trafficcap.timer
 
 - `vnstat` must be installed + monitoring `ens17`.
 - `caps/easytier.sh` assumes docker compose v2 (`docker compose`) and the service name `easytier`.
+- Compose file name: prefers `docker-compose.yaml` (falls back to `docker-compose.yml`).
 - Edit interface/limit/port inside scripts if your environment differs.
