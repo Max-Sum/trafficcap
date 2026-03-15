@@ -9,7 +9,7 @@ Traffic cap automation for a VPS:
 
 ## Layout
 
-- `check.sh` -> prints `normal` or `capped`
+- `check.sh` -> prints `normal` or `capped` (uses `vnstat --alert ... exit=5`, so alert rc=2 and real errors rc=1)
 - `apply.sh` -> runs all `caps/*.sh` with that state
 - `caps/easytier.sh` -> edits `/root/docker/easytier/config.toml` and restarts docker compose service only if needed
 - `caps/proxy-probe.sh` -> idempotent iptables rule enforcement
